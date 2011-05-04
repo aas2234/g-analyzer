@@ -1,9 +1,12 @@
 package edu.columbia.gAnalyzer.job;
 
 import java.io.IOException;
+import java.lang.instrument.IllegalClassFormatException;
 import java.util.HashMap;
 
 import org.apache.hadoop.mapreduce.Job;
+
+import edu.columbia.gAnalyzer.graph.MRGraph;
 
 
 /**
@@ -29,20 +32,35 @@ public class GJobController extends JobController {
 	}
 	
 	@Override
-	public Long createJob(MRGraph mrg) throws IOException{
-		lastIndex = lastIndex + 1;
-		GJob job = new GJob();
-		jobList.put(new Long(lastIndex), job);
-		
-		return lastIndex;
-	}
-
-	@Override
 	public Job getJob(Long jobID) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public Long createJob(Object mrgraph) throws IOException, IllegalClassFormatException {
+		
+		if(mrgraph != null) {
+			if(mrgraph instanceof MRGraph) {	
 
+				lastIndex = lastIndex + 1;
+				GJob job = new GJob();
+				jobList.put(new Long(lastIndex), job);
+				return lastIndex;
+			} else {
+				throw new IllegalClassFormatException("Object is not of type MRGraph");
+			}
+		} else {
+			throw new NullPointerException("MRGraph object was null");
+		}
+	}
+	
+	@Override
+	public void startJob(Long jobID) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	@Override
 	public void stopJob(Long jobID) {
 		// TODO Auto-generated method stub
