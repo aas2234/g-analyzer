@@ -38,13 +38,13 @@ public class GJobController extends JobController {
 	}
 	
 	@Override
-	public Long createJob(Object mrgraph) throws IOException, IllegalClassFormatException {
+	public Long createJob(Object mrgraph, String outputDirectory) throws IOException, IllegalClassFormatException {
 		
 		if(mrgraph != null) {
 			if(mrgraph instanceof MRGraph) {	
 
 				lastIndex = lastIndex + 1;
-				GJob job = new GJob();
+				GJob job = new GJob(outputDirectory);
 				jobList.put(new Long(lastIndex), job);
 				return lastIndex;
 			} else {

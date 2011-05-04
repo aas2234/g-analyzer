@@ -20,8 +20,8 @@ public class MREdgeListGraph extends MRGraph implements GraphNormalizer {
 	 * constructor with file list
 	 * @param fileList
 	 */
-	public MREdgeListGraph(List<String> fileList) {
-		super(fileList);
+	public MREdgeListGraph(String inputFilesPath) {
+		super(inputFilesPath);
 	}
 	
 	@Override

@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.Job;
  */
 public abstract class JobController {
 
-	public abstract Long createJob(Object jobRef) throws IOException, IllegalClassFormatException;
+	public abstract Long createJob(Object jobRef, String outputDirectory) throws IOException, IllegalClassFormatException;
 	public abstract Job getJob(Long jobID);
 	public abstract void stopJob(Long jobID);
 	public abstract void startJob(Long jobID);

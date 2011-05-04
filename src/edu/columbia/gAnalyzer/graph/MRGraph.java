@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public abstract class MRGraph {
 
-	private List<String> fileList;
+	private String inputFilesPath;
 	
 	public MRGraph() {}
 	
@@ -21,8 +21,8 @@ public abstract class MRGraph {
 	 * constructor specifying files of graph
 	 * @param fileList
 	 */
-	public MRGraph(List<String> fileList) {
-		setFileList(fileList);
+	public MRGraph(String inputFilePath) {
+		setFileList(inputFilePath);
 	}
 	
 	
@@ -33,8 +33,8 @@ public abstract class MRGraph {
 	 * 
 	 * @param fileList a list of Strings containing paths to the files
 	 */
-	public void setFileList(List<String> fileList) {
-		this.fileList = fileList;
+	public void setFileList(String inputFilesPath) {
+		this.inputFilesPath = inputFilesPath;
 	}
 	
 	/**
@@ -42,8 +42,8 @@ public abstract class MRGraph {
 	 * 
 	 * @return list of paths to the files of the graph
 	 */
-	public List<String> getFileList() {
-		return fileList;
+	public String getInputFilesPath() {
+		return inputFilesPath;
 	}
 	
 	/**

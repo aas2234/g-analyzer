@@ -14,8 +14,8 @@ public class MRAdjacencyListGraph extends MRGraph{
 
 	public MRAdjacencyListGraph() {}
 	
-	public MRAdjacencyListGraph(List<String> fileList) {
-		super(fileList);
+	public MRAdjacencyListGraph(String inputFilesPath) {
+		super(inputFilesPath);
 	}
 
 	@Override
