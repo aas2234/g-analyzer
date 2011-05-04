@@ -15,12 +15,7 @@ public abstract class MRGraph {
 
 	private List<String> fileList;
 	
-	
-	/**
-	 * default constructor
-	 */
 	public MRGraph() {}
-	
 	
 	/**
 	 * constructor specifying files of graph

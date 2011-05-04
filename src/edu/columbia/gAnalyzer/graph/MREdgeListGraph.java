@@ -14,9 +14,6 @@ import edu.columbia.gAnalyzer.util.GraphNormalizer;
  */
 public class MREdgeListGraph extends MRGraph implements GraphNormalizer {
 
-	/**
-	 * default constructor
-	 */
 	public MREdgeListGraph() {}
 	
 	/**
