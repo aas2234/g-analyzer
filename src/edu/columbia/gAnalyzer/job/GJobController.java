@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.HashMap;
 
-import org.apache.hadoop.mapreduce.Job;
-
 import edu.columbia.gAnalyzer.graph.MRGraph;
 
 
@@ -13,18 +11,20 @@ import edu.columbia.gAnalyzer.graph.MRGraph;
  * The GJobController is a concrete factory class for creating and destroying Hadoop jobs.
  * 
  * @author Abhishek Srivastava (aas2234@columbia.edu)
- *
+ * 
+ * //TODO : stopped jobs should return their IDs back to the factory 
  */
 public class GJobController extends JobController {
 
-	private HashMap<Long, GJob> jobList;
-	private Long lastIndex;
+	private static HashMap<Long, GJob> jobList;
+	private long lastIndex;
 	private static boolean created;
 	private static GJobController gjobFactory;
 	
 	public static GJobController getGJobController() {
 		if(!created) {
 			gjobFactory = new GJobController();
+			jobList = new HashMap<Long,GJob>();
 			created = true;
 		} 
 		
@@ -32,19 +32,25 @@ public class GJobController extends JobController {
 	}
 	
 	@Override
-	public Job getJob(Long jobID) {
-		// TODO Auto-generated method stub
-		return null;
+	public GJob getJob(Long jobID) {
+		
+		if(jobList.containsKey(jobID)) {
+			return jobList.get(jobID);
+		} else {
+			return null;
+		}
 	}
 	
+	//TODO: Remove jobtype from here. Ugly and not conforming to parent's interface.
 	@Override
-	public Long createJob(Object mrgraph, String outputDirectory) throws IOException, IllegalClassFormatException {
+	public Long createJob(Object mrgraph, String outputDirectory, JobType jobtype) throws IOException, IllegalClassFormatException {
 		
 		if(mrgraph != null) {
 			if(mrgraph instanceof MRGraph) {	
 
+				MRGraph mrg = (MRGraph) mrgraph;
 				lastIndex = lastIndex + 1;
-				GJob job = new GJob(outputDirectory);
+				GJob job = new GJob(mrg,jobtype,outputDirectory);
 				jobList.put(new Long(lastIndex), job);
 				return lastIndex;
 			} else {

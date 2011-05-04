@@ -14,8 +14,6 @@ import edu.columbia.gAnalyzer.graph.MRGraph;
 import edu.columbia.gAnalyzer.worker.ClusteringCoeffWorker;
 import edu.columbia.gAnalyzer.worker.DegreeDistWorker;
 
-enum JobType {CLUSTERING_COEFF, DEGREE_DIST, MOTIF_STATS, COMMUNITIES}; 
-
 /**
  * The GJob class extends Hadoop's Job class for hadoop jobs on graphs.
  * 
