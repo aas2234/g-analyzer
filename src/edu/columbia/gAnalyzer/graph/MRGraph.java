@@ -11,9 +11,25 @@ import java.util.Map;
  * @author Abhishek Srivastava (aas2234@columbia.edu)
  *
  */
-public class MRGraph {
+public abstract class MRGraph {
 
 	private List<String> fileList;
+	
+	
+	/**
+	 * default constructor
+	 */
+	public MRGraph() {}
+	
+	
+	/**
+	 * constructor specifying files of graph
+	 * @param fileList
+	 */
+	public MRGraph(List<String> fileList) {
+		setFileList(fileList);
+	}
+	
 	
 	/**
 	 * sets the list of files to read in the graph from.
@@ -42,9 +58,7 @@ public class MRGraph {
 	 * @param R number of reducers to use
 	 * @return degree distribution of graph
 	 */
-	public Map getDegreeDistribution(long M, long R) {
-		
-	}
+	public abstract Map<Long, Integer> getDegreeDistribution(long M, long R);
 	
 	/**
 	 * returns the clustering coefficient of the graph
@@ -53,9 +67,7 @@ public class MRGraph {
 	 * @param R number of reducers to use
 	 * @return clustering coefficient of graph
 	 */
-	public double getClusteringCoefficient(long M, long R) {
-		
-	}
+	public abstract double getClusteringCoefficient(long M, long R);
 	
 	
 	/**
@@ -66,7 +78,5 @@ public class MRGraph {
 	 * @param motifSize motif size to compute statistics for
 	 * @return map of motif ID and counts
 	 */
-	public Map getMotifStatistics(long M, long R, int motifSize) {
-		
-	}
+	public abstract Map<Long, Long> getMotifStatistics(long M, long R, int motifSize);
 }
