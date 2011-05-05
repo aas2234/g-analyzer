@@ -23,8 +23,6 @@ public class DegreeDistWorker extends MRGWorker {
 	 *
 	 */
 	public static class ALDegreeDistMapper extends Mapper<LongWritable, Text, LongWritable, IntWritable> {
-		private static final IntWritable one = new IntWritable(1);
-		private Text word = new Text();
 		
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		    String line = value.toString();
@@ -61,6 +59,46 @@ public class DegreeDistWorker extends MRGWorker {
 		}
 	}
 
+
+	/**
+	 * Mapper for degree distribution calculation for graph in edge list format.
+	 * 
+	 * @author Abhishek Srivastava (aas2234@columbia.edu)
+	 *
+	 */
+	public static class ELDegreeDistMapper extends Mapper<LongWritable, Text, LongWritable, IntWritable> {
+		
+		private IntWritable one = new IntWritable(1);
+		
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+		    String line = value.toString();
+			StringTokenizer tokenizer = new StringTokenizer(line);
+			LongWritable nodeID = new LongWritable(Long.parseLong(tokenizer.nextToken()));
+			
+			context.write(nodeID,one);
+			
+		}
+	}
+	
+
+	/**
+	 * Reducer for degree distribution calculation for graph in edge list format.
+	 * 
+	 * @author Abhishek Srivastava (aas2234@columbia.edu)
+	 *
+	 */
+	public static class ELDegreeDistReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+		
+		public void reduce(LongWritable key, Iterator<IntWritable> values, OutputCollector<LongWritable, IntWritable> output, Reporter reporter) throws IOException {
+	    
+			int sum = 0;
+			while (values.hasNext()) {
+				sum += values.next().get();
+			}
+			output.collect(key, new IntWritable(sum));
+		}
+	}
+	
 	@Override
 	public void doWork() {
 		

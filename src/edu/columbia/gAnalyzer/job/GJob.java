@@ -10,6 +10,8 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import edu.columbia.gAnalyzer.graph.MRAdjacencyListGraph;
+import edu.columbia.gAnalyzer.graph.MREdgeListGraph;
 import edu.columbia.gAnalyzer.graph.MRGraph;
 import edu.columbia.gAnalyzer.worker.ClusteringCoeffWorker;
 import edu.columbia.gAnalyzer.worker.DegreeDistWorker;
@@ -99,23 +101,51 @@ public class GJob extends Job implements Runnable{
 	}
 	
 	public void startCCWorker() throws IOException, ClassNotFoundException, InterruptedException {
-		
-	}
 
-	public void startDDWorker() throws IOException, ClassNotFoundException, InterruptedException {
-
-		setJobName(JobType.DEGREE_DIST.toString());
-		
-		setJarByClass(DegreeDistWorker.class);
-		setMapperClass(DegreeDistWorker.ALDegreeDistMapper.class);
-		setReducerClass(DegreeDistWorker.ALDegreeDistReducer.class);
+		setJobName(JobType.CLUSTERING_COEFF.toString());
+		setJarByClass(ClusteringCoeffWorker.class);
+		//TODO: Fix after figuring out exact algorithm
 		setOutputKeyClass(LongWritable.class);
 		setOutputValueClass(IntWritable.class);
 		
 		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
 		FileOutputFormat.setOutputPath(this, new Path(outputPath));
+
+		// handle both forms of graphs as input 
 		
+		if(mrgraph instanceof MRAdjacencyListGraph) {
+			setMapperClass(ClusteringCoeffWorker.ALCLusteringCoeffMapper.class);
+			setReducerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer.class);
+		} else if (mrgraph instanceof MREdgeListGraph) {
+			setMapperClass(ClusteringCoeffWorker.ELCLusteringCoeffMapper.class);
+			setReducerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer.class);
+		}
+
 		waitForCompletion(true); //submits the job, waits for it to be completed.
+
+	}
+
+	public void startDDWorker() throws IOException, ClassNotFoundException, InterruptedException {
+
+		setJobName(JobType.DEGREE_DIST.toString());
+		setJarByClass(DegreeDistWorker.class);
+		setOutputKeyClass(LongWritable.class);
+		setOutputValueClass(IntWritable.class);
+		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
+		FileOutputFormat.setOutputPath(this, new Path(outputPath));
+
+		// handle both forms of graphs as input 
+		
+		if(mrgraph instanceof MRAdjacencyListGraph) {
+			setMapperClass(DegreeDistWorker.ALDegreeDistMapper.class);
+			setReducerClass(DegreeDistWorker.ALDegreeDistReducer.class);
+		} else if (mrgraph instanceof MREdgeListGraph) {
+			setMapperClass(DegreeDistWorker.ELDegreeDistMapper.class);
+			setReducerClass(DegreeDistWorker.ELDegreeDistReducer.class);
+		}
+
+		waitForCompletion(true); //submits the job, waits for it to be completed.
+
 	}
 	
 	public void startMSWorker() {

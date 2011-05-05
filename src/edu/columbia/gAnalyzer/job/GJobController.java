@@ -42,6 +42,7 @@ public class GJobController extends JobController {
 	}
 	
 	//TODO: Remove jobtype from here. Ugly and not conforming to parent's interface.
+	//TODO: Consider the type of MRGraph to differentiate between hadnling edge-list and adj-list
 	@Override
 	public Long createJob(Object mrgraph, String outputDirectory, JobType jobtype) throws IOException, IllegalClassFormatException {
 		
@@ -68,9 +69,9 @@ public class GJobController extends JobController {
 	}
 	
 	@Override
-	public void stopJob(Long jobID) {
-		// TODO Auto-generated method stub
-
+	public void stopJob(Long jobID) throws IOException {
+		GJob stopJob = jobList.get(jobID);
+		stopJob.killJob();
 	}
 
 }

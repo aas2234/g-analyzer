@@ -16,7 +16,7 @@ public abstract class JobController {
 
 	public abstract Long createJob(Object jobRef, String outputDirectory, JobType jobtype) throws IOException, IllegalClassFormatException;
 	public abstract Job getJob(Long jobID);
-	public abstract void stopJob(Long jobID);
+	public abstract void stopJob(Long jobID) throws IOException;
 	public abstract void startJob(Long jobID);
 	
 }

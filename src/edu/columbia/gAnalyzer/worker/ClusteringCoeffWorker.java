@@ -14,23 +14,43 @@ import org.apache.hadoop.mapreduce.Reducer;
 public class ClusteringCoeffWorker extends MRGWorker {
 	
 	
-	public static class CLusteringCoeffMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+	public static class ALCLusteringCoeffMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 		private static final IntWritable one = new IntWritable(1);
 		private Text word = new Text();
 		
 		public void map(LongWritable key, Text value, Context context) throws IOException {
 		    String line = value.toString();
+		    
 			
 		}
 	}
 	
-	public static class ClusteringCoeffReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+	public static class ALClusteringCoeffReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 		
 		public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 	    
 		}
 	}
 
+	
+	public static class ELCLusteringCoeffMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+		private static final IntWritable one = new IntWritable(1);
+		private Text word = new Text();
+		
+		public void map(LongWritable key, Text value, Context context) throws IOException {
+		    String line = value.toString();
+		    
+			
+		}
+	}
+	
+	public static class ELClusteringCoeffReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+		
+		public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+	    
+		}
+	}
+	
 	@Override
 	public void doWork() {
 		// TODO Auto-generated method stub
