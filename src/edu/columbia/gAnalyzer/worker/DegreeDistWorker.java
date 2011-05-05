@@ -26,7 +26,7 @@ public class DegreeDistWorker extends MRGWorker {
 		private static final IntWritable one = new IntWritable(1);
 		private Text word = new Text();
 		
-		public void map(LongWritable key, Text value, Context context) throws IOException {
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		    String line = value.toString();
 			StringTokenizer tokenizer = new StringTokenizer(line);
 			int edgeSum = 0;
@@ -34,9 +34,10 @@ public class DegreeDistWorker extends MRGWorker {
 			
 			while (tokenizer.hasMoreTokens()) {
 				edgeSum += 1;
+				tokenizer.nextToken();
 			}
 			IntWritable edgeSUM = new IntWritable(edgeSum);
-			((OutputCollector<LongWritable, IntWritable>) context).collect(nodeID,edgeSUM);
+			context.write(nodeID,edgeSUM);
 			
 		}
 	}

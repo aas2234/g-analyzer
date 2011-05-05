@@ -1,5 +1,9 @@
+package edu.columbia.gAnalyzer.test;
+
 import java.io.IOException;
 import java.lang.instrument.IllegalClassFormatException;
+
+import org.apache.hadoop.util.GenericOptionsParser;
 
 import edu.columbia.gAnalyzer.graph.MRAdjacencyListGraph;
 import edu.columbia.gAnalyzer.graph.MRGraph;
@@ -14,14 +18,18 @@ public class testMRGraph {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		String outputPath = new String("/home/abhi/test/MRGraph/DD/op/");
-		
-		MRGraph mrg = new MRAdjacencyListGraph();
+		String[] otherArgs = new GenericOptionsParser(args).getRemainingArgs();
+	    if (otherArgs.length != 2) {
+	      System.err.println("Usage: wordcount <in> <out>");
+	      System.exit(2);
+	    }
+	    
+		MRGraph mrg = new MRAdjacencyListGraph(otherArgs[0]);
 		GJobController gjc = GJobController.getGJobController();
 		try {
 			Long jobID;
 			JobType jtype = JobType.DEGREE_DIST; // define the job type
-			jobID = gjc.createJob(mrg, outputPath, jtype);
+			jobID = gjc.createJob(mrg, otherArgs[1], jtype);
 			gjc.startJob(jobID);
 			
 		} catch (IOException e) {

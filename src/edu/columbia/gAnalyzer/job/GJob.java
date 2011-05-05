@@ -28,22 +28,23 @@ public class GJob extends Job implements Runnable{
 	private Configuration conf;
 	
 	public GJob() throws IOException {
-		super();
+		super(new Configuration());
 		outputPath = "/tmp";
-		conf = new Configuration();
+		/*conf = new Configuration();*/
 	}
 	
 	public GJob(String outputDirectory) throws IOException {
-		super();
+		super(new Configuration());
 		outputPath = outputDirectory;
-		conf = new Configuration();
+		/*conf = new Configuration();*/
 	}
 	
 	public GJob(MRGraph mg,JobType jtype, String outputDirectory) throws IOException {
+		super(new Configuration());
 		this.mrgraph = mg;
 		this.jobtype = jtype;
 		this.outputPath = outputDirectory;
-		conf = new Configuration(); 
+		/*conf = new Configuration();*/ 
 	}
 	
 	public void start() {
@@ -99,26 +100,19 @@ public class GJob extends Job implements Runnable{
 	
 	public void startCCWorker() throws IOException, ClassNotFoundException, InterruptedException {
 		
-		setInputFormatClass(FileInputFormat.class);
-		setMapperClass(ClusteringCoeffWorker.CLusteringCoeffMapper.class);
-		setReducerClass(ClusteringCoeffWorker.ClusteringCoeffReducer.class);
-		setOutputKeyClass(LongWritable.class);
-		setOutputValueClass(IntWritable.class);
-		FileInputFormat.setInputPaths(this, new Path(mrgraph.getInputFilesPath()));
-		FileOutputFormat.setOutputPath(this, new Path(outputPath));
-		
-		waitForCompletion(true); //submits the job, waits for it to be completed.
-
 	}
 
 	public void startDDWorker() throws IOException, ClassNotFoundException, InterruptedException {
 
-		setInputFormatClass(FileInputFormat.class);
+		setJobName(JobType.DEGREE_DIST.toString());
+		
+		setJarByClass(DegreeDistWorker.class);
 		setMapperClass(DegreeDistWorker.ALDegreeDistMapper.class);
 		setReducerClass(DegreeDistWorker.ALDegreeDistReducer.class);
 		setOutputKeyClass(LongWritable.class);
 		setOutputValueClass(IntWritable.class);
-		FileInputFormat.setInputPaths(this, new Path(mrgraph.getInputFilesPath()));
+		
+		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
 		FileOutputFormat.setOutputPath(this, new Path(outputPath));
 		
 		waitForCompletion(true); //submits the job, waits for it to be completed.

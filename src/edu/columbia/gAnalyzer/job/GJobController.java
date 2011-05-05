@@ -63,8 +63,8 @@ public class GJobController extends JobController {
 	
 	@Override
 	public void startJob(Long jobID) {
-		// TODO Auto-generated method stub
-		
+		GJob startJob = jobList.get(jobID);
+		startJob.start();
 	}
 	
 	@Override
