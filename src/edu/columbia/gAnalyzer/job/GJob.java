@@ -7,6 +7,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.lib.ChainReducer;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -125,7 +126,7 @@ public class GJob extends Job implements Runnable{
 		setJarByClass(ClusteringCoeffWorker.class);
 		//TODO: Fix after figuring out exact algorithm
 		
-		setMapOutputKeyClass(LongWritable.class);
+		setMapOutputKeyClass(Text.class);
         setMapOutputValueClass(LongWritable.class);
 		
         setInputFormatClass(TextInputFormat.class);
@@ -151,6 +152,34 @@ public class GJob extends Job implements Runnable{
 
 		waitForCompletion(true); //submits the job, waits for it to be completed.
 
+		/********* SECOND TASK ***********/
+		
+		setMapOutputKeyClass(Text.class);
+        setMapOutputValueClass(LongWritable.class);
+		
+        setInputFormatClass(TextInputFormat.class);
+        setOutputFormatClass(TextOutputFormat.class);
+   
+        setOutputKeyClass(Text.class);
+        setOutputValueClass(LongWritable.class);
+   
+		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
+		FileOutputFormat.setOutputPath(this, new Path(outputPath));
+
+		// handle both forms of graphs as input 
+		
+		if(mrgraph instanceof MRAdjacencyListGraph) {
+			setMapperClass(ClusteringCoeffWorker.ALCLusteringCoeffMapper2.class);
+			//setCombinerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer1.class);
+			setReducerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer2.class);
+		} else if (mrgraph instanceof MREdgeListGraph) {
+			setMapperClass(ClusteringCoeffWorker.ELCLusteringCoeffMapper2.class);
+			//setCombinerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer1.class);
+			setReducerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer2.class);
+		}
+
+		waitForCompletion(true); //submits the job, waits for it to be completed.
+	
 	}
 
 	public void startDDWorker() throws IOException, ClassNotFoundException, InterruptedException {

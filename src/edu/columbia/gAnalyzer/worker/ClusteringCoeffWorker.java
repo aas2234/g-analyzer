@@ -1,8 +1,8 @@
 package edu.columbia.gAnalyzer.worker;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -58,34 +58,52 @@ public class ClusteringCoeffWorker extends MRGWorker {
 	
 /*********************************************************************************************************************************/
 	
-	public static class ELCLusteringCoeffMapper1 extends Mapper<LongWritable, Text, LongWritable, LongWritable> {
+	public static class ELCLusteringCoeffMapper1 extends Mapper<LongWritable, Text, Text, LongWritable> {
 		
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
 			StringTokenizer tokenizer = new StringTokenizer(line);
 			LongWritable nodeID = new LongWritable(Long.parseLong(tokenizer.nextToken()));
 			LongWritable neighbor = new LongWritable(Long.parseLong(tokenizer.nextToken()));
-			
-			context.write(nodeID,neighbor);
+			Text outNodeID = new Text(nodeID.toString());
+			context.write(outNodeID,neighbor);
+			System.out.println("Key :" + outNodeID + " Value : " + neighbor);
 		}
 	}
 	
-	public static class ELClusteringCoeffReducer1 extends Reducer<LongWritable, LongWritable, Text, LongWritable> {
+	public static class ELClusteringCoeffReducer1 extends Reducer<Text, LongWritable, Text, Text> {
 		
-		public void reduce(LongWritable key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+		public void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
 			
-			List<LongWritable> set = new LinkedList<LongWritable>();
-			for(LongWritable value : values) {
-				set.add(value);
+			
+			Iterator<LongWritable> itr = values.iterator();
+			List<Text> neighbors = new ArrayList<Text>();
+	
+			while(itr.hasNext()){
+				neighbors.add(new Text(itr.next().toString()));
+//				System.out.println("Key :" + key + " Values :" + itr.next().toString());
+			}
+//			
+//			// no need to combinate since only 2 nodes present
+			if(neighbors.size() == 2) {
+				String edge = new String(neighbors.get(0) + ":" + neighbors.get(1));
+				Text outEdge = new Text(edge);
+				context.write(outEdge,key);
+				//System.out.println("Key :" + outEdge + " Value : " + key);
+			} else if(neighbors.size() < 2) {
+				
+			} else {
+
+				CombinationGenerator<Text> cg = new CombinationGenerator<Text>(neighbors, 2);
+				for(List<Text> combination : cg) {
+					String edge = new String(combination.get(0) + ":" + combination.get(1));
+					Text outEdge = new Text(edge);
+					context.write(outEdge, key);
+					//System.out.println("Key :" + outEdge + " Value : " + key);
+				}
 			}
 			
-	        CombinationGenerator<LongWritable> cg = new CombinationGenerator<LongWritable>(set, 2);
-	        for(List<LongWritable> combination : cg) {
-	            String edge = new String(combination.get(0).get() + ":" + combination.get(1));
-	            Text outEdge = new Text(edge);
-	            context.write(outEdge, key);
-	        }
-
+			System.out.println("Key :" + key + " Values :" + neighbors.toString());
 		}
 	}
 	
@@ -101,7 +119,7 @@ public class ClusteringCoeffWorker extends MRGWorker {
 	
 	public static class ELClusteringCoeffReducer2 extends Reducer<Text, IntWritable, Text, IntWritable> {
 		
-		public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+		public void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
 	    
 		}
 	}
