@@ -16,6 +16,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import edu.columbia.gAnalyzer.graph.MRAdjacencyListGraph;
 import edu.columbia.gAnalyzer.graph.MREdgeListGraph;
 import edu.columbia.gAnalyzer.graph.MRGraph;
+import edu.columbia.gAnalyzer.test.testMRConnComp;
+import edu.columbia.gAnalyzer.worker.CCWorker;
 import edu.columbia.gAnalyzer.worker.ClusteringCoeffWorker;
 import edu.columbia.gAnalyzer.worker.DegreeDistWorker;
 import edu.columbia.gAnalyzer.worker.InDegreeWorker;
@@ -24,6 +26,7 @@ import edu.columbia.gAnalyzer.worker.InDegreeWorker;
  * The GJob class extends Hadoop's Job class for hadoop jobs on graphs.
  * 
  * @author Abhishek Srivastava (aas2234@columbia.edu)
+ * @author Vishal Srivastava (vs2370@columbia.edu)
  *
  */
 public class GJob extends Job implements Runnable{
@@ -105,6 +108,22 @@ public class GJob extends Job implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			break;
+		case CONCOMP:
+			try {
+				startConCompWorker();
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			break;
 			
 		case MOTIF_STATS:
 			startMSWorker();
@@ -118,6 +137,48 @@ public class GJob extends Job implements Runnable{
 		}
 		
 	}
+	
+	public void startConCompWorker() throws IOException, ClassNotFoundException, InterruptedException {
+
+		Job job1 = new Job();
+    	job1.setJarByClass(CCWorker.class);
+    	job1.setJobName("ccworker_job1");
+
+    	job1.setMapperClass(CCWorker.CC_Mapper1.class);
+    	job1.setReducerClass(CCWorker.CC_Reducer1.class);
+
+    	job1.setOutputKeyClass(IntWritable.class);
+    	job1.setOutputValueClass(Text.class);
+
+    	job1.setInputFormatClass(TextInputFormat.class);
+    	job1.setOutputFormatClass(TextOutputFormat.class);
+
+    	
+		
+    	FileInputFormat.addInputPath(job1, new Path(mrgraph.getInputFilesPath()));
+    	FileOutputFormat.setOutputPath(job1, new Path(outputPath));
+
+    	job1.waitForCompletion(true);
+    	
+    	Job job2 = new Job();
+    	job2.setJarByClass(CCWorker.class);
+    	job2.setJobName("ccworker_job2");
+
+    	job2.setMapperClass(CCWorker.CC_Mapper2.class);
+    	job2.setReducerClass(CCWorker.CC_Reducer2.class);
+
+    	job2.setOutputKeyClass(Text.class);
+    	job2.setOutputValueClass(Text.class);
+
+    	job2.setInputFormatClass(TextInputFormat.class);
+    	job2.setOutputFormatClass(TextOutputFormat.class);
+
+    	FileInputFormat.addInputPath(job2, new Path(outputPath));
+    	FileOutputFormat.setOutputPath(job2, new Path(outputPath+"2"));
+
+    	job2.waitForCompletion(true);
+		}
+
 	
 	public void startCCWorker() throws IOException, ClassNotFoundException, InterruptedException {
 

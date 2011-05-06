@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 
 /**
- * Mapper for degree distribution calculation for graph in adjacency list format.
+ * In-degree distribution calculation for graph in edge list format.
  * 
  * @author Vishal Srivastava (vs2370@columbia.edu)
  *
@@ -21,7 +21,7 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
 
 public class InDegreeWorker extends MRGWorker{
 	/**
-	 * Mapper for degree distribution calculation for graph in edge list format.
+	 * Mapper for Indegree distribution calculation for graph in edge list format.
 	 * 
 	 * @author Vishal Srivastava (vs2370@columbia.edu)
 	 *
@@ -42,23 +42,22 @@ public static class ELINDegreeDistMapper extends Mapper<LongWritable, Text, Long
 	}
 	
 /**
- * Reducer for degree distribution calculation for graph in edge list format.
+ * Reducer for Indegree distribution calculation for graph in edge list format.
  * 
  * @author Vishal Srivastava (vs2370@columbia.edu)
  *
  */
-	public static class ELINDegreeDistReducer extends Reducer<LongWritable, IntWritable,Text , IntWritable> {
-		
-		public void reduce(LongWritable key, Iterator<IntWritable> values, OutputCollector<LongWritable, IntWritable> output, Reporter reporter) throws IOException {
-	    
-			int indegree=0;
-		
-			while (values.hasNext()) {
-				indegree += values.next().get();
-			}
-			output.collect(key, new IntWritable(indegree));
+public static class ELINDegreeDistReducer extends Reducer<LongWritable, IntWritable, LongWritable, IntWritable> {
+	
+	public void reduce(LongWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+    
+		int indegree = 0;
+		for(IntWritable value : values) {
+			indegree = indegree + value.get();
 		}
+		context.write(key, new IntWritable(indegree));
 	}
+}
 	@Override
 	public void doWork() {
 		// TODO Auto-generated method stub
