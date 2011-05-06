@@ -6,9 +6,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import edu.columbia.gAnalyzer.graph.MRAdjacencyListGraph;
 import edu.columbia.gAnalyzer.graph.MREdgeListGraph;
@@ -105,20 +108,29 @@ public class GJob extends Job implements Runnable{
 		setJobName(JobType.CLUSTERING_COEFF.toString());
 		setJarByClass(ClusteringCoeffWorker.class);
 		//TODO: Fix after figuring out exact algorithm
-		setOutputKeyClass(LongWritable.class);
-		setOutputValueClass(IntWritable.class);
 		
+		setMapOutputKeyClass(LongWritable.class);
+        setMapOutputValueClass(LongWritable.class);
+		
+        setInputFormatClass(TextInputFormat.class);
+        setOutputFormatClass(TextOutputFormat.class);
+   
+        setOutputKeyClass(Text.class);
+        setOutputValueClass(LongWritable.class);
+   
 		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
 		FileOutputFormat.setOutputPath(this, new Path(outputPath));
 
 		// handle both forms of graphs as input 
 		
 		if(mrgraph instanceof MRAdjacencyListGraph) {
-			setMapperClass(ClusteringCoeffWorker.ALCLusteringCoeffMapper.class);
-			setReducerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer.class);
+			setMapperClass(ClusteringCoeffWorker.ALCLusteringCoeffMapper1.class);
+			//setCombinerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer1.class);
+			setReducerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer1.class);
 		} else if (mrgraph instanceof MREdgeListGraph) {
-			setMapperClass(ClusteringCoeffWorker.ELCLusteringCoeffMapper.class);
-			setReducerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer.class);
+			setMapperClass(ClusteringCoeffWorker.ELCLusteringCoeffMapper1.class);
+			//setCombinerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer1.class);
+			setReducerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer1.class);
 		}
 
 		waitForCompletion(true); //submits the job, waits for it to be completed.
@@ -138,9 +150,11 @@ public class GJob extends Job implements Runnable{
 		
 		if(mrgraph instanceof MRAdjacencyListGraph) {
 			setMapperClass(DegreeDistWorker.ALDegreeDistMapper.class);
+			setCombinerClass(DegreeDistWorker.ELDegreeDistReducer.class);
 			setReducerClass(DegreeDistWorker.ALDegreeDistReducer.class);
 		} else if (mrgraph instanceof MREdgeListGraph) {
 			setMapperClass(DegreeDistWorker.ELDegreeDistMapper.class);
+			setCombinerClass(DegreeDistWorker.ELDegreeDistReducer.class);
 			setReducerClass(DegreeDistWorker.ELDegreeDistReducer.class);
 		}
 

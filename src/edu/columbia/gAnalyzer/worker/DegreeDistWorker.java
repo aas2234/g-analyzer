@@ -87,15 +87,15 @@ public class DegreeDistWorker extends MRGWorker {
 	 * @author Abhishek Srivastava (aas2234@columbia.edu)
 	 *
 	 */
-	public static class ELDegreeDistReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+	public static class ELDegreeDistReducer extends Reducer<LongWritable, IntWritable, LongWritable, IntWritable> {
 		
-		public void reduce(LongWritable key, Iterator<IntWritable> values, OutputCollector<LongWritable, IntWritable> output, Reporter reporter) throws IOException {
+		public void reduce(LongWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 	    
 			int sum = 0;
-			while (values.hasNext()) {
-				sum += values.next().get();
+			for(IntWritable value : values) {
+				sum = sum + value.get();
 			}
-			output.collect(key, new IntWritable(sum));
+			context.write(key, new IntWritable(sum));
 		}
 	}
 	
