@@ -18,6 +18,7 @@ import edu.columbia.gAnalyzer.graph.MREdgeListGraph;
 import edu.columbia.gAnalyzer.graph.MRGraph;
 import edu.columbia.gAnalyzer.worker.ClusteringCoeffWorker;
 import edu.columbia.gAnalyzer.worker.DegreeDistWorker;
+import edu.columbia.gAnalyzer.worker.InDegreeWorker;
 
 /**
  * The GJob class extends Hadoop's Job class for hadoop jobs on graphs.
@@ -90,6 +91,21 @@ public class GJob extends Job implements Runnable{
 				e.printStackTrace();
 			}
 			break;
+		case INDEGREE:
+			try {
+				startIndegreeWorker();
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		case MOTIF_STATS:
 			startMSWorker();
 			break;
@@ -162,6 +178,29 @@ public class GJob extends Job implements Runnable{
 
 	}
 	
+	public void startIndegreeWorker() throws IOException, ClassNotFoundException, InterruptedException {
+
+		setJobName(JobType.INDEGREE.toString());
+		setJarByClass(InDegreeWorker.class);
+		setOutputKeyClass(LongWritable.class);
+		setOutputValueClass(IntWritable.class);
+		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
+		FileOutputFormat.setOutputPath(this, new Path(outputPath));
+
+		// handle both forms of graphs as input 
+		
+		if(mrgraph instanceof MRAdjacencyListGraph) {
+			/*setMapperClass(DegreeDistWorker.ALDegreeDistMapper.class);
+			setReducerClass(DegreeDistWorker.ALDegreeDistReducer.class);*/
+		} else if (mrgraph instanceof MREdgeListGraph) {
+			setMapperClass(InDegreeWorker.ELINDegreeDistMapper.class);
+			setCombinerClass(InDegreeWorker.ELINDegreeDistReducer.class);
+			setReducerClass(InDegreeWorker.ELINDegreeDistReducer.class);
+			
+		}
+
+		waitForCompletion(true); //submits the job, waits for it to be completed.
+	}
 	public void startMSWorker() {
 		
 	}

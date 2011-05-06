@@ -6,17 +6,12 @@ import java.lang.instrument.IllegalClassFormatException;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import edu.columbia.gAnalyzer.graph.MRAdjacencyListGraph;
+import edu.columbia.gAnalyzer.graph.MREdgeListGraph;
 import edu.columbia.gAnalyzer.graph.MRGraph;
 import edu.columbia.gAnalyzer.job.GJobController;
 import edu.columbia.gAnalyzer.job.JobType;
-/**
- * Mapper for degree distribution calculation for graph in adjacency list format.
- * 
- * @author Vishal Srivastava (vs2370@columbia.edu)
- *
- */
 
-public class testMRGraph {
+public class MRGraphInDegree {
 
 	/**
 	 * @param args
@@ -30,11 +25,11 @@ public class testMRGraph {
 	      System.exit(2);
 	    }
 	    
-		MRGraph mrg = new MRAdjacencyListGraph(otherArgs[0]);
+		MRGraph mrg = new MREdgeListGraph(otherArgs[0]);
 		GJobController gjc = GJobController.getGJobController();
 		try {
 			Long jobID;
-			JobType jtype = JobType.DEGREE_DIST; // define the job type
+			JobType jtype = JobType.INDEGREE; // define the job type
 			jobID = gjc.createJob(mrg, otherArgs[1], jtype);
 			gjc.startJob(jobID);
 			
