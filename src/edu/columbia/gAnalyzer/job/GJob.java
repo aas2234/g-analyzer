@@ -197,7 +197,7 @@ public class GJob extends Job implements Runnable{
         setOutputValueClass(LongWritable.class);
    
 		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
-		FileOutputFormat.setOutputPath(this, new Path(outputPath));
+		FileOutputFormat.setOutputPath(this, new Path("/home/abhi/Social_NW/Final_Project/test/intermediate"));
 
 		// handle both forms of graphs as input 
 		
@@ -214,33 +214,25 @@ public class GJob extends Job implements Runnable{
 		waitForCompletion(true); //submits the job, waits for it to be completed.
 
 		/********* SECOND TASK ***********/
-		
-		setMapOutputKeyClass(Text.class);
-        setMapOutputValueClass(LongWritable.class);
-		
-        setInputFormatClass(TextInputFormat.class);
-        setOutputFormatClass(TextOutputFormat.class);
-   
-        setOutputKeyClass(Text.class);
-        setOutputValueClass(LongWritable.class);
-   
-		FileInputFormat.addInputPath(this, new Path(mrgraph.getInputFilesPath()));
-		FileOutputFormat.setOutputPath(this, new Path(outputPath));
 
-		// handle both forms of graphs as input 
-		
-		if(mrgraph instanceof MRAdjacencyListGraph) {
-			setMapperClass(ClusteringCoeffWorker.ALCLusteringCoeffMapper2.class);
-			//setCombinerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer1.class);
-			setReducerClass(ClusteringCoeffWorker.ALClusteringCoeffReducer2.class);
-		} else if (mrgraph instanceof MREdgeListGraph) {
-			setMapperClass(ClusteringCoeffWorker.ELCLusteringCoeffMapper2.class);
-			//setCombinerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer1.class);
-			setReducerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer2.class);
-		}
+		Job job2 = new Job();
+    	job2.setJarByClass(ClusteringCoeffWorker.class);
+    	job2.setJobName("ClusteringCoefficient-2");
 
-		waitForCompletion(true); //submits the job, waits for it to be completed.
-	
+    	job2.setMapperClass(ClusteringCoeffWorker.ELCLusteringCoeffMapper2.class);
+    	job2.setReducerClass(ClusteringCoeffWorker.ELClusteringCoeffReducer2.class);
+
+    	job2.setOutputKeyClass(Text.class);
+    	job2.setOutputValueClass(Text.class);
+
+    	job2.setInputFormatClass(TextInputFormat.class);
+    	job2.setOutputFormatClass(TextOutputFormat.class);
+
+    	FileInputFormat.addInputPath(job2, new Path("/home/abhi/Social_NW/Final_Project/test/intermediate"));
+    	FileOutputFormat.setOutputPath(job2, new Path(outputPath));
+
+    	job2.waitForCompletion(true);
+
 	}
 
 	public void startDDWorker() throws IOException, ClassNotFoundException, InterruptedException {

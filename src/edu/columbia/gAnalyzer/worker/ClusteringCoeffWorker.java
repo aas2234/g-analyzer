@@ -2,6 +2,7 @@ package edu.columbia.gAnalyzer.worker;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -78,11 +79,18 @@ public class ClusteringCoeffWorker extends MRGWorker {
 			
 			Iterator<LongWritable> itr = values.iterator();
 			List<Text> neighbors = new ArrayList<Text>();
-	
+			
 			while(itr.hasNext()){
 				neighbors.add(new Text(itr.next().toString()));
 //				System.out.println("Key :" + key + " Values :" + itr.next().toString());
 			}
+			
+			// emit actual edges too
+			Iterator<Text> iter = neighbors.iterator();
+			while(iter.hasNext()) {
+				context.write(new Text(key+":"+iter.next().toString()), key);
+			}
+			
 //			
 //			// no need to combinate since only 2 nodes present
 			if(neighbors.size() == 2) {
@@ -108,19 +116,40 @@ public class ClusteringCoeffWorker extends MRGWorker {
 	}
 	
 	
-	public static class ELCLusteringCoeffMapper2 extends Mapper<LongWritable, Text, Text, IntWritable> {
+	public static class ELCLusteringCoeffMapper2 extends Mapper<LongWritable, Text, Text, Text> {
 		
-		public void map(LongWritable key, Text value, Context context) throws IOException {
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		    String line = value.toString();
-		    
+		    StringTokenizer tokenizer = new StringTokenizer(line);
+		    String edge = tokenizer.nextToken();
+		    String vertex = tokenizer.nextToken();
+		    context.write(new Text(edge), new Text(vertex));
 			
 		}
 	}
 	
-	public static class ELClusteringCoeffReducer2 extends Reducer<Text, IntWritable, Text, IntWritable> {
+	public static class ELClusteringCoeffReducer2 extends Reducer<Text, Text, Text, Text> {
 		
-		public void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 	    
+				HashSet<Text> vertices = new HashSet<Text>();
+				
+				double triangleFlag = 0;
+				String edge = key.toString();
+				String [] tokens = edge.split(":");
+				int edgeCount = 0;
+				if(tokens.length == 3) {
+					for(Text value : values) {
+						edgeCount++;
+						vertices.add(value);
+					}
+//					triangleFlag = (double)(vertices.size());
+//					Double trFlag = new Double(triangleFlag);
+//					context.write(new Text("countMe"), new Text(trFlag.toString()));
+					if(edgeCount ==2) {
+						context.write(new Text("countMe"), new Text("1"));
+					}
+				}
 		}
 	}
 	
